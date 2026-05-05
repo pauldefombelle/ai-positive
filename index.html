@@ -1561,8 +1561,15 @@
     el.addEventListener('blur', saveContent);
   });
 
+  // ── makeEditable — legacy no-op (ph-body now contenteditable via JS)
+  function makeEditable(el) { el.closest('.ph-body')?.focus(); }
+
   // ── EXPORT PDF (single long page, black bg)
   async function exportPDF() {
+    if (typeof html2pdf === 'undefined') {
+      alert('PDF library not loaded — check your internet connection.');
+      return;
+    }
     const btn = document.getElementById('btn-pdf');
     btn.textContent = '…';
     btn.disabled = true;
@@ -1570,8 +1577,10 @@
     // Expand all panels
     const activePanelId = document.querySelector('.tpanel.active')?.id;
     document.querySelectorAll('.tpanel').forEach(p => { p.style.display = 'block'; });
-    document.querySelector('.action-bar').style.visibility = 'hidden';
-    document.querySelector('.tabs-bar').style.display = 'none';
+    const actionBar = document.querySelector('.action-bar');
+    const tabsBar   = document.querySelector('.tabs-bar');
+    if (actionBar) actionBar.style.visibility = 'hidden';
+    if (tabsBar)   tabsBar.style.display = 'none';
 
     // Kill animations so html2canvas captures cleanly
     const noAnim = document.createElement('style');
@@ -1611,8 +1620,8 @@
     if (activePanelId) {
       document.getElementById(activePanelId).style.display = 'block';
     }
-    document.querySelector('.action-bar').style.visibility = '';
-    document.querySelector('.tabs-bar').style.display = '';
+    if (actionBar) actionBar.style.visibility = '';
+    if (tabsBar)   tabsBar.style.display = '';
     btn.textContent = '↓ PDF';
     btn.disabled = false;
   }
