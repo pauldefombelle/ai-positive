@@ -1476,7 +1476,10 @@
   // ── APPLY DATA
   function applyData(data) {
     document.querySelectorAll('[data-key]').forEach(el => {
-      if (data[el.dataset.key] != null) el.innerHTML = data[el.dataset.key];
+      if (data[el.dataset.key] != null) {
+          const val = data[el.dataset.key];
+          el.innerHTML = /^(<br\s*\/?>)*$/.test(val.trim()) ? '' : val;
+        }
     });
   }
 
