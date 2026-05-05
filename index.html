@@ -1417,29 +1417,50 @@
     btn.textContent = '…';
     btn.disabled = true;
 
+    // Expand all panels
     const activePanelId = document.querySelector('.tpanel.active')?.id;
     document.querySelectorAll('.tpanel').forEach(p => { p.style.display = 'block'; });
     document.querySelector('.action-bar').style.visibility = 'hidden';
     document.querySelector('.tabs-bar').style.display = 'none';
 
-    await new Promise(r => setTimeout(r, 150));
+    // Kill animations so html2canvas captures cleanly
+    const noAnim = document.createElement('style');
+    noAnim.textContent = '* { animation: none !important; transition: none !important; }';
+    document.head.appendChild(noAnim);
+
+    await new Promise(r => setTimeout(r, 300));
 
     const W = document.documentElement.offsetWidth;
-    const H = document.documentElement.scrollHeight;
+    const H = document.body.scrollHeight;
 
     await html2pdf()
       .set({
         margin: 0,
         filename: 'ai-positive-draft.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, backgroundColor: '#080808', useCORS: true, scrollY: 0, windowWidth: W },
-        jsPDF: { unit: 'px', format: [W, H], orientation: 'portrait' }
+        image: { type: 'png' },
+        html2canvas: {
+          scale: 2,
+          backgroundColor: '#080808',
+          useCORS: true,
+          scrollY: 0,
+          windowWidth: W,
+          windowHeight: H
+        },
+        jsPDF: {
+          unit: 'px',
+          format: [W, H],
+          orientation: 'portrait'
+        }
       })
       .from(document.body)
       .save();
 
+    // Restore
+    noAnim.remove();
     document.querySelectorAll('.tpanel').forEach(p => { p.style.display = ''; });
-    if (activePanelId) document.getElementById(activePanelId).classList.add('active');
+    if (activePanelId) {
+      document.getElementById(activePanelId).style.display = 'block';
+    }
     document.querySelector('.action-bar').style.visibility = '';
     document.querySelector('.tabs-bar').style.display = '';
     btn.textContent = '↓ PDF';
