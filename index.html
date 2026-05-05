@@ -152,6 +152,30 @@
     }
 
     /* ─── POSITIONING ─── */
+
+    .intro-bullets {
+      list-style: none;
+      padding: 0;
+      margin-top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .intro-bullets li {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      padding-left: 1.1rem;
+      position: relative;
+    }
+    .intro-bullets li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+    .intro-bullets li strong {
+      color: var(--text);
+    }
     .intro-text {
       color: var(--text-dim);
       font-size: 0.9rem;
@@ -777,21 +801,12 @@
   <!-- ── 1. POSITIONING ── -->
   <section>
     <div class="eyebrow">Positioning</div>
-    <p class="intro-text">AI-driven uncertainty naturally increases global risk. However, Positive is built for this landscape.</p>
-    <div class="pillars">
-      <div class="pillar">
-        <div class="pillar-title">Timeless Value</div>
-        <p>Our core mission—connecting businesses with customers—is permanent.</p>
-      </div>
-      <div class="pillar">
-        <div class="pillar-title">Trust Economy</div>
-        <p>Leading the transition toward a verified, trust-based digital world.</p>
-      </div>
-      <div class="pillar">
-        <div class="pillar-title">AI Expertise</div>
-        <p>As a seasoned AI player, we see this evolution as a primary technological opportunity.</p>
-      </div>
-    </div>
+    <p class="intro-text">AI-driven uncertainty naturally increases global risk. However, Positive is built for this landscape:</p>
+    <ul class="intro-bullets">
+      <li><strong>Timeless Value Proposition:</strong> Our core mission—connecting businesses with customers—is permanent.</li>
+      <li><strong>Trust Economy:</strong> We are leading the transition toward a verified, trust-based digital world.</li>
+      <li><strong>AI Expertise:</strong> As a seasoned AI player, we see this evolution as a primary technological opportunity.</li>
+    </ul>
   </section>
 
   <!-- ── 2. MARKET POSITION ── -->
