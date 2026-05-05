@@ -1585,7 +1585,7 @@
 
     // Kill animations so html2canvas captures cleanly
     const noAnim = document.createElement('style');
-    noAnim.textContent = '* { animation: none !important; transition: none !important; }';
+    noAnim.textContent = '* { animation: none !important; transition: none !important; } footer { margin-bottom: 0 !important; } body { padding-bottom: 0 !important; } .action-bar { display: none !important; }';
     document.head.appendChild(noAnim);
 
     await new Promise(r => setTimeout(r, 300));
