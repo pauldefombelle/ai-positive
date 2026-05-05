@@ -50,6 +50,7 @@
     }
 
     .wrap {
+      display: none;
       max-width: 980px;
       margin: 0 auto;
       padding: 0 2rem;
@@ -604,6 +605,7 @@
 
     /* ── ACTION BAR ── */
     .action-bar {
+      display: none;
       position: fixed;
       bottom: 1.5rem;
       right: 1.5rem;
@@ -683,12 +685,81 @@
       opacity: 0; transition: opacity 0.4s; white-space: nowrap;
     }
     .sync-status.show { opacity: 1; }
+
+    /* ── PASSWORD GATE ── */
+    .gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1.5rem;
+    }
+    .gate-logo {
+      height: 36px; width: 36px;
+      border-radius: 8px; object-fit: cover;
+    }
+    .gate-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.4rem; font-weight: 800;
+      color: #fff; letter-spacing: -0.02em;
+      text-align: center;
+    }
+    .gate-title span { color: var(--accent); }
+    .gate-sub {
+      font-size: 0.82rem; color: var(--text-muted);
+      text-align: center; margin-top: -0.75rem;
+    }
+    .gate-input {
+      width: 280px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      padding: 0.75rem 1rem;
+      outline: none;
+      text-align: center;
+      letter-spacing: 0.05em;
+      transition: border-color 0.2s;
+    }
+    .gate-input:focus { border-color: rgba(120,58,251,0.5); }
+    .gate-input.error { border-color: var(--accent); animation: shake 0.3s; }
+    .gate-btn {
+      width: 280px; padding: 0.65rem;
+      border-radius: 100px; border: none;
+      background: #783AFB; color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .gate-btn:hover { opacity: 0.85; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}
+      25%{transform:translateX(-6px)}
+      75%{transform:translateX(6px)}
+    }
+
     /* ── PRINT — kept minimal, html2pdf handles rendering ── */
     @media print { .action-bar { display: none; } }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
+
+  <!-- PASSWORD GATE -->
+  <div class="gate" id="gate">
+    <img class="gate-logo" id="gate-logo" src="" alt="Positive">
+    <div>
+      <div class="gate-title">AI <span>@</span> Positive</div>
+      <div class="gate-sub">Working Draft — Internal</div>
+    </div>
+    <input class="gate-input" id="gate-input" type="password" placeholder="Mot de passe"
+      onkeydown="if(event.key==='Enter')unlock()">
+    <button class="gate-btn" onclick="unlock()">Accéder</button>
+  </div>
+
 <div class="wrap">
 
   <!-- ── HEADER ── -->
@@ -1199,36 +1270,52 @@
   }
 
   // ── GITHUB SYNC CONFIG
-  const REPO    = 'pauldefombelle/ai-positive';
-  const FILE    = 'content.json';
-  const API     = 'https://api.github.com';
-  const LS_TOKEN = 'ai-positive-gh-token';
-  const LS_DATA  = 'ai-positive-draft-v1';
+  const REPO         = 'pauldefombelle/ai-positive';
+  const FILE         = 'content.json';
+  const API          = 'https://api.github.com';
+  const LS_DATA      = 'ai-positive-draft-v1';
+  const ENCRYPTED    = 'eCXA/vc1sFGuF5OL15ciGfmXio3h2NXT70KjxiXM30pK2Zeo2ZKNJiWFTF9j/Jgiw/HJd02gc8ewKnGOukArnqniU3/B98mTFiu3nGZ2cW2oUYmFOLF6EghNcLfROdrk65saYRmZ7+D55pgsELFZhLjBXzC0Hx56yz5rx2uPyeA5i6MLx8Cuy2E=';
 
-  let ghToken = localStorage.getItem(LS_TOKEN) || '';
-  let fileSha = null;
+  let ghToken  = '';
+  let fileSha  = null;
   let saveTimer = null;
 
-  // ── TOKEN MODAL
-  function ensureToken() {
-    if (ghToken) return true;
-    showTokenModal();
-    return false;
+  // ── DECRYPT TOKEN with Web Crypto API
+  async function decryptToken(password) {
+    const combined  = Uint8Array.from(atob(ENCRYPTED), c => c.charCodeAt(0));
+    const salt      = combined.slice(0, 16);
+    const iv        = combined.slice(16, 28);
+    const ct        = combined.slice(28);
+    const keyMat    = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']
+    );
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+      keyMat, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+    );
+    const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+    return new TextDecoder().decode(dec);
   }
 
-  function showTokenModal() {
-    document.getElementById('token-modal').style.display = 'flex';
-    document.getElementById('token-input').focus();
+  // ── UNLOCK
+  async function unlock() {
+    const pwd   = document.getElementById('gate-input').value;
+    const input = document.getElementById('gate-input');
+    try {
+      ghToken = await decryptToken(pwd);
+      // Success — show document
+      document.getElementById('gate').style.display = 'none';
+      document.querySelector('.wrap').style.display = '';
+      document.querySelector('.action-bar').style.display = '';
+      loadContent();
+    } catch(e) {
+      input.classList.add('error');
+      input.value = '';
+      setTimeout(() => input.classList.remove('error'), 400);
+    }
   }
 
-  function submitToken() {
-    const val = document.getElementById('token-input').value.trim();
-    if (!val) return;
-    ghToken = val;
-    localStorage.setItem(LS_TOKEN, val);
-    document.getElementById('token-modal').style.display = 'none';
-    loadContent();
-  }
+  function ensureToken() { return !!ghToken; }
 
   // ── COLLECT DATA
   function collectData() {
@@ -1254,7 +1341,7 @@
   }
 
   async function pushToGitHub() {
-    if (!ensureToken()) return;
+    if (!ghToken) return;
     const data = collectData();
     const body = JSON.stringify({ data });
     const encoded = btoa(unescape(encodeURIComponent(body)));
@@ -1275,8 +1362,7 @@
         showStatus('Synced ✓');
       } else if (res.status === 401) {
         ghToken = '';
-        localStorage.removeItem(LS_TOKEN);
-        showTokenModal();
+        showStatus('Token invalide');
       } else {
         showStatus('Sync error');
       }
@@ -1285,7 +1371,7 @@
 
   // ── LOAD FROM GITHUB
   async function loadContent() {
-    if (!ensureToken()) return;
+    if (!ghToken) return;
     try {
       const res = await fetch(`${API}/repos/${REPO}/contents/${FILE}`, {
         headers: { Authorization: `token ${ghToken}` }
@@ -1299,8 +1385,7 @@
         updateAllScores();
       } else if (res.status === 401) {
         ghToken = '';
-        localStorage.removeItem(LS_TOKEN);
-        showTokenModal();
+        showStatus('Token invalide');
       } else {
         // Fallback to localStorage
         const local = localStorage.getItem(LS_DATA);
@@ -1361,21 +1446,15 @@
     btn.disabled = false;
   }
 
-  // ── INIT
-  if (ghToken) loadContent(); else { showTokenModal(); updateAllScores(); }
+  // ── INIT — gate shown by default, unlock() triggers loadContent()
+  updateAllScores();
+  // Set gate logo src from embedded logo
+  const gateLogo = document.getElementById('gate-logo');
+  const mainLogo = document.querySelector('header img');
+  if (gateLogo && mainLogo) gateLogo.src = mainLogo.src;
 </script>
 
   <!-- ACTION BAR -->
-  <!-- TOKEN MODAL -->
-  <div class="modal-overlay" id="token-modal">
-    <div class="modal-box">
-      <h3>GitHub Token</h3>
-      <p>Saisis ton Personal Access Token GitHub pour synchroniser le contenu entre navigateurs.</p>
-      <input class="modal-input" id="token-input" type="password" placeholder="ghp_..." onkeydown="if(event.key==='Enter')submitToken()">
-      <button class="modal-btn" onclick="submitToken()">Connecter</button>
-    </div>
-  </div>
-
   <!-- ACTION BAR -->
   <div class="action-bar">
     <span class="sync-status" id="sync-status"></span>
