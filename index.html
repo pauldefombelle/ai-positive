@@ -1571,7 +1571,8 @@
       return;
     }
     const btn = document.getElementById('btn-pdf');
-    btn.textContent = '…';
+    btn.textContent = 'Generating…';
+    btn.style.opacity = '0.6';
     btn.disabled = true;
 
     // Expand all panels
@@ -1579,7 +1580,7 @@
     document.querySelectorAll('.tpanel').forEach(p => { p.style.display = 'block'; });
     const actionBar = document.querySelector('.action-bar');
     const tabsBar   = document.querySelector('.tabs-bar');
-    if (actionBar) actionBar.style.visibility = 'hidden';
+    // action bar stays visible — button shows loading state
     if (tabsBar)   tabsBar.style.display = 'none';
 
     // Kill animations so html2canvas captures cleanly
@@ -1620,9 +1621,10 @@
     if (activePanelId) {
       document.getElementById(activePanelId).style.display = 'block';
     }
-    if (actionBar) actionBar.style.visibility = '';
+    // restore — action bar was never hidden
     if (tabsBar)   tabsBar.style.display = '';
     btn.textContent = '↓ PDF';
+    btn.style.opacity = '';
     btn.disabled = false;
   }
 
