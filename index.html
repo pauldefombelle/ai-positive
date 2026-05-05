@@ -1305,8 +1305,8 @@
       ghToken = await decryptToken(pwd);
       // Success — show document
       document.getElementById('gate').style.display = 'none';
-      document.querySelector('.wrap').style.display = '';
-      document.querySelector('.action-bar').style.display = '';
+      document.querySelector('.wrap').style.display = 'block';
+      document.querySelector('.action-bar').style.display = 'flex';
       loadContent();
     } catch(e) {
       input.classList.add('error');
