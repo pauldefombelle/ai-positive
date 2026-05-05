@@ -153,6 +153,15 @@
 
     /* ─── POSITIONING ─── */
 
+
+    .doc-link {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: rgba(232,65,44,0.4);
+      text-underline-offset: 3px;
+      transition: text-decoration-color 0.2s;
+    }
+    .doc-link:hover { text-decoration-color: var(--accent); }
     .intro-bullets {
       list-style: none;
       padding: 0;
@@ -818,12 +827,12 @@
   </section>
 
     <div class="callout">
-      For us, AI is simultaneously a driver of client value (Uma in our products), a matter of internal transformation (with a very different reality depending on the team), and a communication and marketing priority (positioning ourselves as an AI company).<br><br>
+      For us, AI is simultaneously a <a href="#market-position" class="doc-link">driver of client value</a> (Uma in our products), a matter of <a href="#internal-transformation" class="doc-link">internal transformation</a> (with a very different reality depending on the team), and a <a href="#shine" class="doc-link">communication and marketing priority</a> (positioning ourselves as an AI company).<br><br>
       Regardless of the angle, we aren't primarily looking for training, consulting, or slides. We are looking for the capacity to execute, implement, and accelerate.
     </div>
 
   <!-- ── 2. MARKET POSITION ── -->
-  <section>
+  <section id="market-position">
     <div class="eyebrow">Market Position</div>
     <h2>AI for Customer Value Proposition</h2>
     <p class="uma-label">Via Uma</p>
@@ -836,9 +845,9 @@
   </section>
 
   <!-- ── 3. INTERNAL TRANSFORMATION ── -->
-  <section>
+  <section id="internal-transformation">
     <div class="eyebrow">Internal Transformation</div>
-    <h2>Framework</h2>
+    <h2>AI Transforming Each Team</h2>
     <div class="overview-grid">
       <div class="overview-chip"><strong>Tech & Product</strong><span>Complete model transformation</span></div>
       <div class="overview-chip"><strong>Sales & CS & Care</strong><span>Towards AI+Human model</span></div>
