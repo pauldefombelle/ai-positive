@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Positive — Working Draft</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080808;
+      --surface: #111111;
+      --surface-2: #181818;
+      --surface-3: #1F1F1F;
+      --accent: #E8412C;
+      --accent-soft: rgba(232, 65, 44, 0.15);
+      --accent-glow: rgba(232, 65, 44, 0.07);
+      --text: #E8E8E2;
+      --text-muted: #6B6B63;
+      --text-dim: #9B9B90;
+      --border: rgba(255,255,255,0.07);
+      --border-accent: rgba(232, 65, 44, 0.40);
+      --dot-filled: #E8412C;
+      --dot-empty: #2E2E2E;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Ambient glow top left */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -100px;
+      left: -100px;
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(232,65,44,0.09) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      padding: 3.5rem 0 2.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 3.5rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.6rem;
+    }
+
+    h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .wip-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.45rem 1.1rem;
+      border-radius: 100px;
+      border: none;
+      background: #783AFB;
+      color: #ffffff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .wip-badge .pulse { display: none; }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+    .header-sub {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-style: italic;
+    }
+
+    /* ─── SECTION SCAFFOLDING ─── */
+    section {
+      margin-bottom: 3.5rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    section:nth-child(2) { animation-delay: 0.05s; }
+    section:nth-child(3) { animation-delay: 0.10s; }
+    section:nth-child(4) { animation-delay: 0.15s; }
+    section:nth-child(5) { animation-delay: 0.20s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.85rem;
+    }
+    .eyebrow.purple { color: #A855F7; }
+
+    h2 {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.25rem;
+    }
+
+    h3 {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+
+    /* ─── POSITIONING ─── */
+    .intro-text {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .pillar {
+      background: var(--surface);
+      padding: 1.4rem 1.35rem;
+      position: relative;
+    }
+
+    .pillar::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent) 0%, transparent 80%);
+    }
+
+    .pillar-title {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.45rem;
+    }
+
+    .pillar p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ─── MARKET POSITION ─── */
+    .uma-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+      letter-spacing: 0.04em;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .tag {
+      padding: 0.45rem 0.95rem;
+      border-radius: 7px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .tag:hover {
+      border-color: var(--border-accent);
+      color: var(--text);
+    }
+
+    /* ─── TRANSFORMATION OVERVIEW ─── */
+    .callout {
+      border-left: 2px solid #783AFB;
+      background: var(--surface);
+      border-radius: 0 10px 10px 0;
+      padding: 1.1rem 1.35rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.65;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .overview-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      font-size: 0.8rem;
+    }
+
+    .overview-chip strong {
+      display: block;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+
+    .overview-chip span {
+      color: var(--text-muted);
+    }
+
+    /* ─── MATRIX ─── */
+    .matrix-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .matrix-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+    }
+
+    thead th {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0.9rem 1.1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    thead th:not(:first-child):not(:last-child) {
+      text-align: center;
+    }
+
+    tbody td {
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover td { background: var(--surface-2); }
+
+    .tname {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-weight: 600;
+      font-size: 0.82rem;
+      color: var(--text);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .tname:hover { color: #F07060; }
+
+    td.center { text-align: center; }
+
+    .dot {
+      display: inline-block;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+    }
+
+    .dot.on  { background: var(--dot-filled); box-shadow: 0 0 7px rgba(120,58,251,0.55); }
+    .dot.off { background: var(--dot-empty); }
+
+    .score {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.65rem;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .score-hi  { background: rgba(232,65,44,0.20); color: #F07060; }
+    .score-mid { background: rgba(232,65,44,0.09); color: #8B5040; }
+    .score-lo  { background: rgba(255,255,255,0.04); color: var(--text-muted); }
+
+    /* ─── TEAM TABS ─── */
+    .tabs-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.75rem;
+    }
+
+    .tbtn {
+      padding: 0.65rem 1.1rem;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: color 0.18s;
+      margin-bottom: -1px;
+      white-space: nowrap;
+    }
+
+    .tbtn:hover { color: var(--text-dim); }
+
+    .tbtn.active {
+      color: #F05540;
+      border-bottom-color: var(--accent);
+    }
+
+    .tpanel { display: none; }
+    .tpanel.active {
+      display: block;
+      animation: fadeUp 0.22s ease both;
+    }
+
+    /* ─── TEAM PANEL HEADER ─── */
+    .tp-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tp-leader {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+
+    .tp-score-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .mini-dots {
+      display: flex;
+      gap: 0.3rem;
+      align-items: center;
+    }
+
+    /* ─── PHASE TABLE ─── */
+    .phases {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .phase-row {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .phase-row:last-child { border-bottom: none; }
+    .phase-row.filled { border-left: 2px solid var(--accent); }
+    .phase-row:not(.filled) { border-left: 2px solid rgba(120, 58, 251, 0.35); }
+
+    .ph-label {
+      padding: 1.2rem 1.2rem;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .ph-label-name {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-dim);
+      margin-bottom: 0.2rem;
+    }
+
+    .ph-label-period {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .ph-body {
+      padding: 1.2rem 1.4rem;
+      background: var(--surface-2);
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+
+    .ph-body ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .ph-body ul li {
+      padding-left: 1rem;
+      position: relative;
+      color: var(--text-dim);
+      font-size: 0.875rem;
+    }
+
+    .ph-body ul li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    /* empty placeholder */
+    .ph-empty {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-style: italic;
+      cursor: pointer;
+      padding: 0.25rem 0;
+      transition: color 0.18s;
+    }
+
+    .ph-empty:hover { color: #C084FF; }
+
+    .ph-empty-icon {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1.5px dashed rgba(120,58,251,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: border-color 0.18s, color 0.18s;
+    }
+
+    .ph-empty:hover .ph-empty-icon {
+      border-color: var(--accent);
+      color: #B08EFF;
+    }
+
+    .ph-textarea {
+      width: 100%;
+      background: var(--surface-3);
+      border: 1px solid rgba(120,58,251,0.5);
+      border-radius: 7px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      padding: 0.75rem 1rem;
+      resize: vertical;
+      min-height: 72px;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+
+    .ph-textarea:focus {
+      border-color: var(--accent);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      margin-top: 4rem;
+      padding: 2rem 0 3rem;
+      margin-bottom: 6rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    footer span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .positive-mark {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      .pillars { grid-template-columns: 1fr; }
+      .phase-row { grid-template-columns: 1fr; }
+      .ph-label { border-right: none; border-bottom: 1px solid var(--border); }
+      .matrix-scroll { font-size: 0.78rem; }
+    }
+
+    /* ── CONTENTEDITABLE ── */
+    .ph-body[contenteditable] {
+      outline: none;
+      cursor: text;
+      border-radius: 0 0 4px 4px;
+      transition: background 0.15s, box-shadow 0.15s;
+      position: relative;
+    }
+    .ph-body[contenteditable]:hover { background: var(--surface-3); }
+    .ph-body[contenteditable]:focus {
+      background: var(--surface-3);
+      box-shadow: inset 0 0 0 1.5px rgba(120,58,251,0.45);
+    }
+    .ph-body[contenteditable]:empty::before {
+      content: attr(data-placeholder);
+      color: rgba(120,58,251,0.45);
+      font-style: italic;
+      font-size: 0.82rem;
+      pointer-events: none;
+    }
+
+    /* ── LEADER EDITABLE ── */
+    .leader-editable {
+      outline: none;
+      border-bottom: 1px dashed rgba(120,58,251,0.4);
+      padding: 0 0.25rem;
+      min-width: 50px;
+      display: inline-block;
+      cursor: text;
+      color: var(--text-dim);
+      transition: border-color 0.15s;
+    }
+    .leader-editable:hover { border-bottom-color: rgba(120,58,251,0.7); }
+    .leader-editable:focus { border-bottom-color: #783AFB; outline: none; }
+    .leader-editable:empty::before {
+      content: attr(data-placeholder);
+      color: rgba(120,58,251,0.45);
+      font-style: italic;
+    }
+
+    /* ── ACTION BAR ── */
+    .action-bar {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      z-index: 100;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1rem;
+      border-radius: 100px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .btn-action:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-action:active { transform: translateY(0); }
+
+    .btn-pdf {
+      background: #783AFB;
+      color: #fff;
+      border: none;
+    }
+
+    .save-status {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      opacity: 0;
+      transition: opacity 0.4s;
+      white-space: nowrap;
+    }
+    .save-status.show { opacity: 1; }
+
+
+    /* ── TOKEN MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.85);
+      align-items: center; justify-content: center;
+    }
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      width: 420px; max-width: 90vw;
+    }
+    .modal-box h3 { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; color:#fff; margin-bottom: 0.5rem; }
+    .modal-box p  { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.5; }
+    .modal-input {
+      width: 100%; background: var(--surface-3);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: monospace; font-size: 0.8rem;
+      padding: 0.65rem 0.9rem; outline: none; margin-bottom: 1rem;
+    }
+    .modal-input:focus { border-color: #783AFB; }
+    .modal-btn {
+      width: 100%; padding: 0.6rem; border-radius: 100px;
+      background: #783AFB; color: #fff; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+      font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    /* ── SYNC STATUS ── */
+    .sync-status {
+      font-size: 0.72rem; color: var(--text-muted);
+      opacity: 0; transition: opacity 0.4s; white-space: nowrap;
+    }
+    .sync-status.show { opacity: 1; }
+    /* ── PRINT — kept minimal, html2pdf handles rendering ── */
+    @media print { .action-bar { display: none; } }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="header-top">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <img src="data:image/png;base64,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" alt="Positive" style="height:32px; width:32px; border-radius:7px; object-fit:cover; flex-shrink:0;">
+        <h1>AI @ <span style="color:var(--accent)">Positive</span></h1>
+      </div>
+      <span class="wip-badge">Working Draft</span>
+    </div>
+    <p class="header-sub">Incomplete by design — to be built collectively</p>
+  </header>
+
+  <!-- ── 1. POSITIONING ── -->
+  <section>
+    <div class="eyebrow">Positioning</div>
+    <p class="intro-text">AI-driven uncertainty naturally elevates the global risk. Positive is built for this landscape.</p>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-title">Timeless Value</div>
+        <p>Our core mission—connecting businesses with customers—is permanent.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-title">Trust Economy</div>
+        <p>Leading the transition toward a verified, trust-based digital world.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-title">AI Expertise</div>
+        <p>As a seasoned AI player, we see this evolution as a primary technological opportunity.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2. MARKET POSITION ── -->
+  <section>
+    <div class="eyebrow">Market Position</div>
+    <h2>AI for Customer Value Proposition</h2>
+    <p class="uma-label">Via Uma</p>
+    <div class="tags">
+      <div class="tag">AI-generated content</div>
+      <div class="tag">AI-appended data</div>
+      <div class="tag">AI-custom UX</div>
+      <div class="tag">Agentic help — AI-assisted UX for performance</div>
+    </div>
+  </section>
+
+  <!-- ── 3. INTERNAL TRANSFORMATION ── -->
+  <section>
+    <div class="eyebrow">Internal Transformation</div>
+    <h2>Framework</h2>
+    <div class="callout">
+      AI is not primarily about training, consulting, and slide decks — it is about execution capacity, implementation, and acceleration. We must clearly separate the marketing dimension from the real internal transformation.
+    </div>
+    <div class="overview-grid">
+      <div class="overview-chip"><strong>Tech & Product</strong><span>Complete model transformation</span></div>
+      <div class="overview-chip"><strong>Sales & CS & Care</strong><span>Towards AI+Human model</span></div>
+      <div class="overview-chip"><strong>Operations</strong><span>Productivity boost</span></div>
+      <div class="overview-chip"><strong>Marketing</strong><span>Somewhere in between</span></div>
+      <div class="overview-chip"><strong>AI Steering Group</strong><span>No silo — AI is everywhere and for all</span></div>
+    </div>
+  </section>
+
+  <!-- ── 4. TEAM DETAIL ── -->
+  <section id="teams-section">
+    <div class="eyebrow purple">Teams</div>
+    <h2>Detail by Team</h2>
+
+    <div class="tabs-bar">
+      <button class="tbtn active" data-tab="tech">Tech & Product</button>
+      <button class="tbtn" data-tab="cs">CS & Care</button>
+      <button class="tbtn" data-tab="sales">Sales</button>
+      <button class="tbtn" data-tab="mkt">Marketing</button>
+      <button class="tbtn" data-tab="ops">Ops & HR</button>
+    </div>
+
+    <!-- TECH & PRODUCT -->
+    <div class="tpanel active" id="tpanel-tech">
+      <div class="tp-head">
+        <div>
+          <h3>Tech & Product</h3>
+          <div class="tp-leader">Leader: <span class="leader-editable" data-key="tech-leader" contenteditable="true">Thomas T.</span></div>
+        </div>
+        <div class="tp-score-wrap">
+          <div class="mini-dots">
+            <span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot off"></span>
+          </div>
+          <span class="score score-hi">4 / 5</span>
+        </div>
+      </div>
+      <div class="phases">
+        <div class="phase-row filled">
+          <div class="ph-label"><div class="ph-label-name">Central Challenge</div></div>
+          <div class="ph-body">Radical transformation of the production model, from user stories to quality testing.</div>
+        </div>
+        <div class="phase-row filled">
+          <div class="ph-label"><div class="ph-label-name">Objectives</div></div>
+          <div class="ph-body"><ul>
+            <li>Short term: team training, skills assessment, methodical identification of individual adapting profiles</li>
+            <li>Medium term: as technology allows, complete replacement of the production model</li>
+          </ul></div>
+        </div>
+        <div class="phase-row filled">
+          <div class="ph-label">
+            <div class="ph-label-name">Early Wins</div>
+            <div class="ph-label-period">2025 – Q1 2026</div>
+          </div>
+          <div class="ph-body">Launched at the beginning of Q1 2026. Key milestone: Tech talk at the convention, concurrent with Claude releases multiplying real operational uses.</div>
+        </div>
+        <div class="phase-row filled">
+          <div class="ph-label">
+            <div class="ph-label-name">Acceleration</div>
+            <div class="ph-label-period">Q2 2026 – Q2 2027</div>
+          </div>
+          <div class="ph-body">12–18 months</div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Medium Term</div>
+            <div class="ph-label-period">&gt; Q2 2027</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CS & CARE -->
+    <div class="tpanel" id="tpanel-cs">
+      <div class="tp-head">
+        <div>
+          <h3>Customer Success & Care</h3>
+          <div class="tp-leader">Leader: <span class="leader-editable" data-key="cs-leader" contenteditable="true" data-placeholder="click to add..."></span></div>
+        </div>
+        <div class="tp-score-wrap">
+          <div class="mini-dots">
+            <span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot off"></span><span class="dot off"></span>
+          </div>
+          <span class="score score-mid">3 / 5</span>
+        </div>
+      </div>
+      <div class="phases">
+        <div class="phase-row filled">
+          <div class="ph-label"><div class="ph-label-name">Central Challenge</div></div>
+          <div class="ph-body">Real AI/Human association, supervised AI model, for superior customer experience — complete elimination of delays, 24/7 availability. The objective is, in the very short term, a superior customer experience despite the current limits of AI.</div>
+        </div>
+        <div class="phase-row filled">
+          <div class="ph-label"><div class="ph-label-name">Objectives</div></div>
+          <div class="ph-body"><ul>
+            <li>Reinforcement of the ops/AI function</li>
+            <li>FTE optimization</li>
+          </ul></div>
+        </div>
+        <div class="phase-row filled">
+          <div class="ph-label">
+            <div class="ph-label-name">Early Wins</div>
+            <div class="ph-label-period">2025 – Q1 2026</div>
+          </div>
+          <div class="ph-body">Deployment of the central tool (AI-assisted chatbot / Gleap)</div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Acceleration</div>
+            <div class="ph-label-period">Q2 2026 – Q2 2027</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Medium Term</div>
+            <div class="ph-label-period">&gt; Q2 2027</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALES -->
+    <div class="tpanel" id="tpanel-sales">
+      <div class="tp-head">
+        <div>
+          <h3>Sales</h3>
+          <div class="tp-leader">Leader: <span class="leader-editable" data-key="sales-leader" contenteditable="true" data-placeholder="click to add..."></span></div>
+        </div>
+        <div class="tp-score-wrap">
+          <div class="mini-dots">
+            <span class="dot off"></span><span class="dot on"></span><span class="dot off"></span><span class="dot off"></span><span class="dot off"></span>
+          </div>
+          <span class="score score-lo">1 / 5</span>
+        </div>
+      </div>
+      <div class="phases">
+        <div class="phase-row">
+          <div class="ph-label"><div class="ph-label-name">Central Challenge</div></div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+        <div class="phase-row filled">
+          <div class="ph-label"><div class="ph-label-name">Objectives</div></div>
+          <div class="ph-body"><ul>
+            <li>Reinforcement of the ops/AI function</li>
+            <li>Lead preparation optimization</li>
+            <li>AI outbound (email, voice)</li>
+            <li>Process automation, alerting</li>
+          </ul></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Early Wins</div>
+            <div class="ph-label-period">2025 – Q1 2026</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Acceleration</div>
+            <div class="ph-label-period">Q2 2026 – Q2 2027</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Medium Term</div>
+            <div class="ph-label-period">&gt; Q2 2027</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKETING -->
+    <div class="tpanel" id="tpanel-mkt">
+      <div class="tp-head">
+        <div>
+          <h3>Marketing</h3>
+          <div class="tp-leader">Leader: <span class="leader-editable" data-key="mkt-leader" contenteditable="true" data-placeholder="click to add..."></span></div>
+        </div>
+        <div class="tp-score-wrap">
+          <div class="mini-dots">
+            <span class="dot on"></span><span class="dot on"></span><span class="dot off"></span><span class="dot off"></span><span class="dot off"></span>
+          </div>
+          <span class="score score-mid">2 / 5</span>
+        </div>
+      </div>
+      <div class="phases">
+        <div class="phase-row filled">
+          <div class="ph-label"><div class="ph-label-name">Central Challenge</div></div>
+          <div class="ph-body">Somewhere between internal transformation and communication/marketing.</div>
+        </div>
+        <div class="phase-row filled">
+          <div class="ph-label"><div class="ph-label-name">Objectives</div></div>
+          <div class="ph-body"><ul>
+            <li>Process structuring, output acceleration</li>
+            <li>Custom lead nurturing</li>
+            <li>Agentization: translation, design, project management</li>
+            <li>Brand visibility in the AI ecosystem</li>
+          </ul></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Early Wins</div>
+            <div class="ph-label-period">2025 – Q1 2026</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Acceleration</div>
+            <div class="ph-label-period">Q2 2026 – Q2 2027</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Medium Term</div>
+            <div class="ph-label-period">&gt; Q2 2027</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPS & HR -->
+    <div class="tpanel" id="tpanel-ops">
+      <div class="tp-head">
+        <div>
+          <h3>Ops & HR</h3>
+          <div class="tp-leader">Leader: <span class="leader-editable" data-key="ops-leader" contenteditable="true" data-placeholder="click to add..."></span></div>
+        </div>
+        <div class="tp-score-wrap">
+          <div class="mini-dots">
+            <span class="dot off"></span><span class="dot on"></span><span class="dot off"></span><span class="dot off"></span><span class="dot off"></span>
+          </div>
+          <span class="score score-lo">1 / 5</span>
+        </div>
+      </div>
+      <div class="phases">
+        <div class="phase-row">
+          <div class="ph-label"><div class="ph-label-name">Central Challenge</div></div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+        <div class="phase-row filled">
+          <div class="ph-label"><div class="ph-label-name">Objectives</div></div>
+          <div class="ph-body"><ul>
+            <li>Education &amp; training for teams</li>
+            <li>Data management</li>
+            <li>Process identification and automation</li>
+            <li>Talent &amp; AI-match</li>
+            <li>Working culture &amp; rituals</li>
+          </ul></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Early Wins</div>
+            <div class="ph-label-period">2025 – Q1 2026</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Acceleration</div>
+            <div class="ph-label-period">Q2 2026 – Q2 2027</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+        <div class="phase-row">
+          <div class="ph-label">
+            <div class="ph-label-name">Medium Term</div>
+            <div class="ph-label-period">&gt; Q2 2027</div>
+          </div>
+          <div class="ph-body"><div class="ph-empty" onclick="makeEditable(this)"><span class="ph-empty-icon">+</span>Click to add</div></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <!-- ── 5. COMPLETION MATRIX ── -->
+  <section>
+    <div class="eyebrow purple">Completion Overview</div>
+    <h2>Document Completion — at a Glance</h2>
+    <div class="matrix-card">
+      <div class="matrix-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th style="text-align:center">Challenge</th>
+              <th style="text-align:center">Objectives</th>
+              <th style="text-align:center">Early Wins</th>
+              <th style="text-align:center">Acceleration</th>
+              <th style="text-align:center">Med. Term</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tname" onclick="goToTeam('tech')">Tech & Product ↗</span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td><span class="score score-hi">4 / 5</span></td>
+            </tr>
+            <tr>
+              <td><span class="tname" onclick="goToTeam('cs')">CS & Care ↗</span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td><span class="score score-mid">3 / 5</span></td>
+            </tr>
+            <tr>
+              <td><span class="tname" onclick="goToTeam('sales')">Sales ↗</span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td><span class="score score-lo">1 / 5</span></td>
+            </tr>
+            <tr>
+              <td><span class="tname" onclick="goToTeam('mkt')">Marketing ↗</span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td><span class="score score-mid">2 / 5</span></td>
+            </tr>
+            <tr>
+              <td><span class="tname" onclick="goToTeam('ops')">Ops & HR ↗</span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td class="center"><span class="dot on"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td class="center"><span class="dot off"></span></td>
+              <td><span class="score score-lo">1 / 5</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <footer>
+    <img src="data:image/png;base64,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" alt="Positive" style="height:20px; width:20px; border-radius:4px; object-fit:cover; opacity:0.5;">
+    <span>AI Strategy · Working Draft · May 2026</span>
+  </footer>
+
+</div>
+
+<script>
+  // ── TAB SWITCHING
+  document.querySelectorAll('.tbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tpanel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tpanel-' + tab).classList.add('active');
+    });
+  });
+
+  // ── JUMP FROM MATRIX
+  function goToTeam(tab) {
+    document.getElementById('teams-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => {
+      document.querySelectorAll('.tbtn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.querySelectorAll('.tpanel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tpanel-' + tab).classList.add('active');
+    }, 200);
+  }
+
+  // ── SETUP EDITABLE PHASE BODIES
+  const teamIds = ['tech', 'cs', 'sales', 'mkt', 'ops'];
+  const phaseKeys = ['challenge', 'objectives', 'earlywins', 'acceleration', 'medterm'];
+
+  teamIds.forEach(team => {
+    const panel = document.getElementById('tpanel-' + team);
+    if (!panel) return;
+    const bodies = panel.querySelectorAll('.ph-body');
+    bodies.forEach((el, i) => {
+      el.contentEditable = 'true';
+      el.dataset.key = team + '-' + (phaseKeys[i] || i);
+      el.setAttribute('data-placeholder', 'Click to add…');
+      if (el.querySelector('.ph-empty')) el.innerHTML = '';
+      el.addEventListener('input', () => updateScore(team));
+      el.addEventListener('blur', () => {
+        // Normalize: remove residual <br> left by browser so CSS :empty works
+        if (el.innerHTML.trim() === '' || /^(<br\s*\/?>)+$/i.test(el.innerHTML.trim())) {
+          el.innerHTML = '';
+        }
+        updateScore(team);
+        saveContent();
+      });
+    });
+  });
+
+  // ── SCORE HELPERS
+  function scoreClass(filled, total) {
+    const r = filled / total;
+    return r >= 0.7 ? 'score-hi' : r >= 0.3 ? 'score-mid' : 'score-lo';
+  }
+
+  function updateScore(teamId) {
+    const panel = document.getElementById('tpanel-' + teamId);
+    if (!panel) return;
+    const bodies = panel.querySelectorAll('.ph-body');
+    const total = bodies.length;
+    let filled = 0;
+    bodies.forEach(el => { if (el.innerHTML.trim() !== '') filled++; });
+
+    // Update mini-dots in panel header
+    const miniDots = panel.querySelector('.mini-dots');
+    if (miniDots) {
+      miniDots.innerHTML = Array.from({length: total}, (_, i) =>
+        `<span class="dot ${i < filled ? 'on' : 'off'}"></span>`
+      ).join('');
+    }
+
+    // Update score badge in panel header
+    const scoreEl = panel.querySelector('.tp-score-wrap .score');
+    if (scoreEl) {
+      scoreEl.textContent = filled + ' / ' + total;
+      scoreEl.className = 'score ' + scoreClass(filled, total);
+    }
+
+    // Update matrix row — find by the goToTeam onclick
+    const tname = document.querySelector(`.tname[onclick="goToTeam('${teamId}')"]`);
+    if (tname) {
+      const tr = tname.closest('tr');
+      if (tr) {
+        tr.querySelectorAll('td.center').forEach((td, i) => {
+          td.innerHTML = `<span class="dot ${i < filled ? 'on' : 'off'}"></span>`;
+        });
+        const matrixScore = tr.querySelector('td:last-child .score');
+        if (matrixScore) {
+          matrixScore.textContent = filled + ' / ' + total;
+          matrixScore.className = 'score ' + scoreClass(filled, total);
+        }
+      }
+    }
+  }
+
+  function updateAllScores() {
+    teamIds.forEach(updateScore);
+  }
+
+  // ── GITHUB SYNC CONFIG
+  const REPO    = 'pauldefombelle/ai-positive';
+  const FILE    = 'content.json';
+  const API     = 'https://api.github.com';
+  const LS_TOKEN = 'ai-positive-gh-token';
+  const LS_DATA  = 'ai-positive-draft-v1';
+
+  let ghToken = localStorage.getItem(LS_TOKEN) || '';
+  let fileSha = null;
+  let saveTimer = null;
+
+  // ── TOKEN MODAL
+  function ensureToken() {
+    if (ghToken) return true;
+    showTokenModal();
+    return false;
+  }
+
+  function showTokenModal() {
+    document.getElementById('token-modal').style.display = 'flex';
+    document.getElementById('token-input').focus();
+  }
+
+  function submitToken() {
+    const val = document.getElementById('token-input').value.trim();
+    if (!val) return;
+    ghToken = val;
+    localStorage.setItem(LS_TOKEN, val);
+    document.getElementById('token-modal').style.display = 'none';
+    loadContent();
+  }
+
+  // ── COLLECT DATA
+  function collectData() {
+    const data = {};
+    document.querySelectorAll('[data-key]').forEach(el => {
+      data[el.dataset.key] = el.innerHTML;
+    });
+    return data;
+  }
+
+  // ── APPLY DATA
+  function applyData(data) {
+    document.querySelectorAll('[data-key]').forEach(el => {
+      if (data[el.dataset.key] != null) el.innerHTML = data[el.dataset.key];
+    });
+  }
+
+  // ── SAVE TO GITHUB (debounced 1.5s)
+  function saveContent() {
+    localStorage.setItem(LS_DATA, JSON.stringify(collectData())); // local backup
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(pushToGitHub, 1500);
+  }
+
+  async function pushToGitHub() {
+    if (!ensureToken()) return;
+    const data = collectData();
+    const body = JSON.stringify({ data });
+    const encoded = btoa(unescape(encodeURIComponent(body)));
+    const payload = {
+      message: 'update content',
+      content: encoded,
+      ...(fileSha ? { sha: fileSha } : {})
+    };
+    try {
+      const res = await fetch(`${API}/repos/${REPO}/contents/${FILE}`, {
+        method: 'PUT',
+        headers: { Authorization: `token ${ghToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const json = await res.json();
+        fileSha = json.content.sha;
+        showStatus('Synced ✓');
+      } else if (res.status === 401) {
+        ghToken = '';
+        localStorage.removeItem(LS_TOKEN);
+        showTokenModal();
+      } else {
+        showStatus('Sync error');
+      }
+    } catch(e) { showStatus('Offline — local save'); }
+  }
+
+  // ── LOAD FROM GITHUB
+  async function loadContent() {
+    if (!ensureToken()) return;
+    try {
+      const res = await fetch(`${API}/repos/${REPO}/contents/${FILE}`, {
+        headers: { Authorization: `token ${ghToken}` }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        fileSha = json.sha;
+        const decoded = decodeURIComponent(escape(atob(json.content.replace(/\n/g,''))));
+        const data = JSON.parse(decoded);
+        if (data.data) applyData(data.data);
+        updateAllScores();
+      } else if (res.status === 401) {
+        ghToken = '';
+        localStorage.removeItem(LS_TOKEN);
+        showTokenModal();
+      } else {
+        // Fallback to localStorage
+        const local = localStorage.getItem(LS_DATA);
+        if (local) applyData(JSON.parse(local));
+      }
+    } catch(e) {
+      const local = localStorage.getItem(LS_DATA);
+      if (local) applyData(JSON.parse(local));
+    }
+  }
+
+  let statusTimer;
+  function showStatus(msg) {
+    const el = document.getElementById('sync-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  document.querySelectorAll('.leader-editable').forEach(el => {
+    el.addEventListener('blur', saveContent);
+  });
+
+  // ── EXPORT PDF (single long page, black bg)
+  async function exportPDF() {
+    const btn = document.getElementById('btn-pdf');
+    btn.textContent = '…';
+    btn.disabled = true;
+
+    const activePanelId = document.querySelector('.tpanel.active')?.id;
+    document.querySelectorAll('.tpanel').forEach(p => { p.style.display = 'block'; });
+    document.querySelector('.action-bar').style.visibility = 'hidden';
+    document.querySelector('.tabs-bar').style.display = 'none';
+
+    await new Promise(r => setTimeout(r, 150));
+
+    const W = document.documentElement.offsetWidth;
+    const H = document.documentElement.scrollHeight;
+
+    await html2pdf()
+      .set({
+        margin: 0,
+        filename: 'ai-positive-draft.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, backgroundColor: '#080808', useCORS: true, scrollY: 0, windowWidth: W },
+        jsPDF: { unit: 'px', format: [W, H], orientation: 'portrait' }
+      })
+      .from(document.body)
+      .save();
+
+    document.querySelectorAll('.tpanel').forEach(p => { p.style.display = ''; });
+    if (activePanelId) document.getElementById(activePanelId).classList.add('active');
+    document.querySelector('.action-bar').style.visibility = '';
+    document.querySelector('.tabs-bar').style.display = '';
+    btn.textContent = '↓ PDF';
+    btn.disabled = false;
+  }
+
+  // ── INIT
+  if (ghToken) loadContent(); else { showTokenModal(); updateAllScores(); }
+</script>
+
+  <!-- ACTION BAR -->
+  <!-- TOKEN MODAL -->
+  <div class="modal-overlay" id="token-modal">
+    <div class="modal-box">
+      <h3>GitHub Token</h3>
+      <p>Saisis ton Personal Access Token GitHub pour synchroniser le contenu entre navigateurs.</p>
+      <input class="modal-input" id="token-input" type="password" placeholder="ghp_..." onkeydown="if(event.key==='Enter')submitToken()">
+      <button class="modal-btn" onclick="submitToken()">Connecter</button>
+    </div>
+  </div>
+
+  <!-- ACTION BAR -->
+  <div class="action-bar">
+    <span class="sync-status" id="sync-status"></span>
+    <button class="btn-action btn-pdf" id="btn-pdf" onclick="exportPDF()">↓ PDF</button>
+  </div>
+</body>
+</html>
