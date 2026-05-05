@@ -774,6 +774,100 @@
       75%{transform:translateX(6px)}
     }
 
+
+    /* ═══════════════════════════════
+       MOBILE — max-width: 768px
+       Desktop untouched above this
+    ═══════════════════════════════ */
+    @media (max-width: 768px) {
+
+      /* Container */
+      .wrap { padding: 0 1rem; }
+
+      /* Header */
+      header { padding: 2rem 0 1.5rem; }
+      h1 { font-size: 1.6rem; }
+      .header-top { gap: 0.75rem; flex-wrap: wrap; }
+
+      /* Sections */
+      section { margin-bottom: 2.5rem; }
+      h2 { font-size: 1.15rem; }
+
+      /* Pillars → stack */
+      .pillars { grid-template-columns: 1fr; }
+
+      /* Callout */
+      .callout { font-size: 0.82rem; }
+
+      /* Overview grid → 2 cols */
+      .overview-grid { grid-template-columns: repeat(2, 1fr); }
+
+      /* Matrix → hidden on mobile, replaced by score-only view */
+      .matrix-card { display: none; }
+      .matrix-mobile {
+        display: flex !important;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .matrix-mobile-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+      }
+      .matrix-mobile-row:hover { background: var(--surface-2); }
+      .matrix-mobile-name {
+        font-family: 'Bricolage Grotesque', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .matrix-mobile-right {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      /* Tabs → horizontal scroll */
+      .tabs-bar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .tabs-bar::-webkit-scrollbar { display: none; }
+      .tbtn { white-space: nowrap; flex-shrink: 0; }
+
+      /* Phase rows → stack label above content */
+      .phase-row { grid-template-columns: 1fr; }
+      .ph-label {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 1rem;
+      }
+      .ph-body { padding: 0.9rem 1rem; font-size: 0.85rem; }
+
+      /* Team header */
+      .tp-head { flex-direction: column; gap: 0.5rem; }
+
+      /* Gate */
+      .gate-input, .gate-btn { width: min(280px, 85vw); }
+
+      /* Action bar */
+      .action-bar { bottom: 1rem; right: 1rem; }
+      .btn-action { padding: 0.5rem 0.85rem; font-size: 0.7rem; }
+
+      /* Shine section */
+      #shine .ph-body { min-height: 80px; }
+    }
+
+    /* ── Matrix mobile rows (hidden on desktop) */
+    .matrix-mobile { display: none; }
+
     /* ── PRINT — kept minimal, html2pdf handles rendering ── */
     @media print { .action-bar { display: none; } }
   </style>
@@ -1282,7 +1376,7 @@
       scoreEl.className = 'score ' + scoreClass(filled, total);
     }
 
-    // Update matrix row — find by the goToTeam onclick
+    // Update desktop matrix row
     const tname = document.querySelector(`.tname[onclick="goToTeam('${teamId}')"]`);
     if (tname) {
       const tr = tname.closest('tr');
@@ -1296,6 +1390,15 @@
           matrixScore.className = 'score ' + scoreClass(filled, total);
         }
       }
+    }
+    // Update mobile matrix row
+    const mmDots = document.getElementById('mm-dots-' + teamId);
+    const mmScore = document.getElementById('mm-score-' + teamId);
+    if (mmDots) mmDots.innerHTML = Array.from({length: total}, (_, i) =>
+      `<span class="dot ${i < filled ? 'on' : 'off'}"></span>`).join('');
+    if (mmScore) {
+      mmScore.textContent = filled + ' / ' + total;
+      mmScore.className = 'score ' + scoreClass(filled, total);
     }
   }
 
